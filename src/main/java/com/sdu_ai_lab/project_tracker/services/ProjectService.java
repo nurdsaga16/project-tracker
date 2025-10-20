@@ -38,7 +38,7 @@ public class ProjectService {
     }
 
     public ProjectResponse getProjectById(Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow();
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException("Not found reservation by id = "+projectId));
         return projectMapper.toDto(project);
     }
 
