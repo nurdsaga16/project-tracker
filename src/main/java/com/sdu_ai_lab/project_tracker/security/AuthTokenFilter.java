@@ -1,6 +1,6 @@
 package com.sdu_ai_lab.project_tracker.security;
 
-import com.sdu_ai_lab.project_tracker.services.UserService;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,12 +20,12 @@ import java.io.IOException;
 public class AuthTokenFilter extends OncePerRequestFilter {
     public static final String BEARER_ = "Bearer ";
     private final JwtUtil jwtUtil;
-    private final UserService userService;
+    private final UserDetailsService userDetailsService;
     private final TokenBlacklist tokenBlacklist;
 
-    public AuthTokenFilter(JwtUtil jwtUtil, UserService userService, TokenBlacklist tokenBlacklist) {
+    public AuthTokenFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService, TokenBlacklist tokenBlacklist) {
         this.jwtUtil = jwtUtil;
-        this.userService = userService;
+        this.userDetailsService = userDetailsService;
         this.tokenBlacklist = tokenBlacklist;
     }
 
@@ -38,7 +38,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             String jwt = parseJwt(request);
             if (jwt != null && !tokenBlacklist.isRevoked(jwt) && jwtUtil.validateJwtToken(jwt)) {
                 final String username = jwtUtil.getUserFromToken(jwt);
-                final UserDetails userDetails = userService.loadUserByUsername(username);
+                final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities()

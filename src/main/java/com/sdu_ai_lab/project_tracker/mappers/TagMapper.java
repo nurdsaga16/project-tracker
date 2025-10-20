@@ -1,11 +1,11 @@
 package com.sdu_ai_lab.project_tracker.mappers;
 
-import com.sdu_ai_lab.project_tracker.dto.TagDto;
-import com.sdu_ai_lab.project_tracker.entities.TagEntity;
+import com.sdu_ai_lab.project_tracker.dto.responses.TagResponse;
+import com.sdu_ai_lab.project_tracker.entities.Tag;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface TagMapper {
-    TagDto toDto(TagEntity entity);
-    TagEntity toEntity(TagDto dto);
+    TagResponse toDto(Tag entity);
+    Tag toEntity(TagResponse dto);
 }

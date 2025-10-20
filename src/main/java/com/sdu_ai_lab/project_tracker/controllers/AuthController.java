@@ -1,11 +1,11 @@
 package com.sdu_ai_lab.project_tracker.controllers;
 
-import com.sdu_ai_lab.project_tracker.entities.UserEntity;
-import com.sdu_ai_lab.project_tracker.enums.UserRole;
+import com.sdu_ai_lab.project_tracker.entities.User;
 import com.sdu_ai_lab.project_tracker.repositories.UserRepository;
 import com.sdu_ai_lab.project_tracker.security.JwtUtil;
 import com.sdu_ai_lab.project_tracker.security.TokenBlacklist;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +20,7 @@ import java.util.Date;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -29,7 +30,7 @@ public class AuthController {
 
     @PostMapping("/api/v1/auth/signin")
     public String authenticateUser(
-            @RequestBody UserEntity user
+            @RequestBody User user
     ) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -44,28 +45,25 @@ public class AuthController {
 
     @PostMapping("/api/v1/auth/signup")
     public ResponseEntity<Void> registerUser(
-            @RequestBody UserEntity user
+            @RequestBody User user
     ) {
         if (userRepository.existsByUsername(user.getUsername())) {
             throw new IllegalArgumentException("Username is already taken!");
         }
-        final UserEntity newUser = new UserEntity();
+        final User newUser = new User();
         newUser.setUsername(user.getUsername());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        newUser.setRole(UserRole.USER);
         userRepository.save(newUser);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/api/v1/signout")
     public ResponseEntity<String> signOut(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authHeader) {
-        // Expecting Authorization: Bearer <token>
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().body("Missing or invalid Authorization header");
         }
         String token = authHeader.substring("Bearer ".length());
         try {
-            // Validate and get expiration using JwtUtil
             if (!jwtUtils.validateJwtToken(token)) {
                 return ResponseEntity.badRequest().body("Invalid token");
             }
@@ -73,7 +71,6 @@ public class AuthController {
             long expMillis = exp != null ? exp.getTime() : (System.currentTimeMillis() + 3600_000);
             tokenBlacklist.revoke(token, expMillis);
         } catch (Exception e) {
-            // If parsing fails, still blacklist for a short window and continue
             tokenBlacklist.revoke(token, System.currentTimeMillis() + 3600_000);
         }
         org.springframework.security.core.context.SecurityContextHolder.clearContext();

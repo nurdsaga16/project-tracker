@@ -15,7 +15,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class TagEntity {
+public class Tag {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,5 +25,5 @@ public class TagEntity {
     private String name;
 
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
-    private Set<ProjectEntity> projects = new HashSet<>();
+    private Set<Project> projects = new HashSet<>();
 }

@@ -1,6 +1,7 @@
 package com.sdu_ai_lab.project_tracker.entities;
 
 import com.sdu_ai_lab.project_tracker.enums.ProjectStatus;
+import com.sdu_ai_lab.project_tracker.enums.ProjectVisibility;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +21,7 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-public class ProjectEntity {
+public class Project {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,14 +39,8 @@ public class ProjectEntity {
     @Column(name = "endDate", nullable = false)
     private LocalDate endDate;
 
-    // Many-to-Many relationship with images
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "project_images",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "image_id")
-    )
-    private Set<ImageEntity> images = new HashSet<>();
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Image> images = new HashSet<>();
 
     @Column(name = "progress", nullable = false)
     private Double progress;
@@ -54,9 +49,13 @@ public class ProjectEntity {
     @Column(name = "status", nullable = false)
     private ProjectStatus status;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "visibility", nullable = false)
+    private ProjectVisibility visibility;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
-    private UserEntity author;
+    private User author;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -64,7 +63,7 @@ public class ProjectEntity {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<UserEntity> teamMembers = new HashSet<>();
+    private Set<User> teamMembers = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -72,7 +71,7 @@ public class ProjectEntity {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private Set<TagEntity> tags = new HashSet<>();
+    private Set<Tag> tags = new HashSet<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)

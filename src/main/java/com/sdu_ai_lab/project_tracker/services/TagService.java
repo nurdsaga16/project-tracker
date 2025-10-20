@@ -1,6 +1,6 @@
 package com.sdu_ai_lab.project_tracker.services;
 
-import com.sdu_ai_lab.project_tracker.dto.TagDto;
+import com.sdu_ai_lab.project_tracker.dto.responses.TagResponse;
 import com.sdu_ai_lab.project_tracker.mappers.TagMapper;
 import com.sdu_ai_lab.project_tracker.repositories.TagRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class TagService {
     private final TagRepository tagRepository;
     private final TagMapper tagMapper;
 
-    public List<TagDto> getAllTags() {
+    public List<TagResponse> getAllTags() {
         log.info("Getting all tags...");
         return tagRepository.findAll().stream()
                 .map(tagMapper::toDto)

@@ -10,7 +10,6 @@ public class StaticResourceConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/general/**")
                 .addResourceLocations("file:images/general/");
-        // Redirect to unified /images/** handler configured in WebMvcConfig; kept for backward compatibility
     }
 }
 

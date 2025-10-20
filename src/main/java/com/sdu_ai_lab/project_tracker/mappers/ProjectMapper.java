@@ -1,8 +1,8 @@
 package com.sdu_ai_lab.project_tracker.mappers;
 
-import com.sdu_ai_lab.project_tracker.dto.ProjectDto;
-import com.sdu_ai_lab.project_tracker.entities.ImageEntity;
-import com.sdu_ai_lab.project_tracker.entities.ProjectEntity;
+import com.sdu_ai_lab.project_tracker.dto.responses.ProjectResponse;
+import com.sdu_ai_lab.project_tracker.entities.Image;
+import com.sdu_ai_lab.project_tracker.entities.Project;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -15,13 +15,13 @@ public interface ProjectMapper {
     @Mappings({
             @Mapping(target = "imagePaths", expression = "java(mapImagePaths(entity))")
     })
-    ProjectDto toDto(ProjectEntity entity);
+    ProjectResponse toDto(Project entity);
 
     // helper for mapping image paths
-    default List<String> mapImagePaths(ProjectEntity entity) {
+    default List<String> mapImagePaths(Project entity) {
         if (entity == null || entity.getImages() == null) return List.of();
         return entity.getImages().stream()
-                .map(ImageEntity::getRelativePath)
+                .map(Image::getRelativePath)
                 .collect(Collectors.toList());
     }
 }

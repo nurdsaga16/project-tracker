@@ -1,6 +1,6 @@
 package com.sdu_ai_lab.project_tracker.security;
 
-import com.sdu_ai_lab.project_tracker.services.UserService;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,13 +21,6 @@ import java.util.List;
 
 @Configuration
 public class WebSecurityConfig {
-    private final UserService userService;
-    private final AuthEntryPointJwt unauthorizedHandler;
-
-    public WebSecurityConfig(UserService userService, AuthEntryPointJwt unauthorizedHandler) {
-        this.userService = userService;
-        this.unauthorizedHandler = unauthorizedHandler;
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -42,11 +35,11 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthTokenFilter authTokenFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthTokenFilter authTokenFilter, AuthEntryPointJwt unauthorizedHandler, DaoAuthenticationProvider authenticationProvider) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(c -> {})
-                .authenticationProvider(authenticationProvider())
+                .authenticationProvider(authenticationProvider)
                 .exceptionHandling(e ->
                         e.authenticationEntryPoint(unauthorizedHandler)
                 )
@@ -64,10 +57,10 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
+    public DaoAuthenticationProvider authenticationProvider(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userService); // ваш сервис
-        authProvider.setPasswordEncoder(passwordEncoder());
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder);
         return authProvider;
     }
 
