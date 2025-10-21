@@ -84,6 +84,7 @@ public class ProjectService {
         project.setStartDate(projectToUpdate.getStartDate());
         project.setEndDate(projectToUpdate.getEndDate());
         project.setStatus(projectToUpdate.getStatus());
+        project.setVisibility(projectToUpdate.getVisibility());
         project.setProgress(projectToUpdate.getProgress());
         project.setAuthor(author);
         project.setTags(tags);

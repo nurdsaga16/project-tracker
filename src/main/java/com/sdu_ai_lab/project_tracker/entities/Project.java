@@ -39,7 +39,7 @@ public class Project {
     @Column(name = "endDate", nullable = false)
     private LocalDate endDate;
 
-    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = false)
     private Set<Image> images = new HashSet<>();
 
     @Column(name = "progress", nullable = false)
