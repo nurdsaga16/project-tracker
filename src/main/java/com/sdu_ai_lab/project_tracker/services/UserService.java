@@ -76,13 +76,11 @@ public class UserService implements UserDetailsService {
         user.setDescription(description);
         user.setPosition(position);
         if (cv != null && !cv.isEmpty()) {
-            String preferredName = username != null ? username : (fullName != null ? fullName : "cv");
-            String path = fileStorageService.saveCv(cv, preferredName);
+            String path = fileStorageService.saveCv(cv);
             user.setCvPath(path);
         }
         if (avatar != null && !avatar.isEmpty()) {
-            String preferredName = username != null ? username : (fullName != null ? fullName : "avatar");
-            String path = fileStorageService.saveAvatar(avatar, preferredName);
+            String path = fileStorageService.saveAvatar(avatar);
             user.setAvatarPath(path);
         }
         User saved = userRepository.save(user);
@@ -103,13 +101,11 @@ public class UserService implements UserDetailsService {
         if (description != null) user.setDescription(description);
         if (position != null) user.setPosition(position);
         if (cv != null && !cv.isEmpty()) {
-            String preferredName = user.getUsername() != null ? user.getUsername() : (fullName != null ? fullName : "cv");
-            String path = fileStorageService.saveCv(cv, preferredName);
+            String path = fileStorageService.saveCv(cv);
             user.setCvPath(path);
         }
         if (avatar != null && !avatar.isEmpty()) {
-            String preferredName = user.getUsername() != null ? user.getUsername() : (fullName != null ? fullName : "avatar");
-            String path = fileStorageService.saveAvatar(avatar, preferredName);
+            String path = fileStorageService.saveAvatar(avatar);
             user.setAvatarPath(path);
         }
         User saved = userRepository.save(user);

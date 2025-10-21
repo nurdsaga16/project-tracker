@@ -28,8 +28,8 @@ public class AuthController {
     private final JwtUtil jwtUtils;
     private final TokenBlacklist tokenBlacklist;
 
-    @PostMapping("/api/v1/auth/signin")
-    public String authenticateUser(
+    @PostMapping("/api/v1/auth/login")
+    public String login(
             @RequestBody User user
     ) {
         Authentication authentication = authenticationManager.authenticate(
@@ -43,8 +43,8 @@ public class AuthController {
         return jwtUtils.generateToken(userDetails.getUsername());
     }
 
-    @PostMapping("/api/v1/auth/signup")
-    public ResponseEntity<Void> registerUser(
+    @PostMapping("/api/v1/auth/register")
+    public ResponseEntity<Void> register(
             @RequestBody User user
     ) {
         if (userRepository.existsByUsername(user.getUsername())) {
@@ -57,8 +57,8 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/api/v1/signout")
-    public ResponseEntity<String> signOut(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authHeader) {
+    @PostMapping("/api/v1/logout")
+    public ResponseEntity<String> logout(@RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authHeader) {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return ResponseEntity.badRequest().body("Missing or invalid Authorization header");
         }
