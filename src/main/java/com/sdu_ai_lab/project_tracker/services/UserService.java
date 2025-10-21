@@ -7,8 +7,7 @@ import com.sdu_ai_lab.project_tracker.mappers.UserMapper;
 import com.sdu_ai_lab.project_tracker.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,13 +18,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
@@ -34,6 +34,7 @@ public class UserService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.info("UserService.loadUserByUsername called username={}", username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -47,12 +48,14 @@ public class UserService implements UserDetailsService {
     }
 
     public UserResponse getUserByUsername(String username) {
+        log.info("UserService.getUserByUsername called username={}", username);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return userMapper.toDto(user);
     }
 
     public List<UserResponse> getAllUsers() {
+        log.info("UserService.getAllUsers called");
         return userRepository.findAll().stream()
                 .map(userMapper::toDto)
                 .toList();
@@ -66,6 +69,7 @@ public class UserService implements UserDetailsService {
                                    UserPosition position,
                                    MultipartFile cv,
                                    MultipartFile avatar) throws IOException {
+        log.info("UserService.createUser called username={} position={} cvPresent={} avatarPresent={}", username, position, cv != null && !cv.isEmpty(), avatar != null && !avatar.isEmpty());
         if (userRepository.existsByUsername(username)) {
             throw new IllegalArgumentException("Username is already taken");
         }
@@ -76,13 +80,11 @@ public class UserService implements UserDetailsService {
         user.setDescription(description);
         user.setPosition(position);
         if (cv != null && !cv.isEmpty()) {
-            String preferredName = username != null ? username : (fullName != null ? fullName : "cv");
-            String path = fileStorageService.saveCv(cv, preferredName);
+            String path = fileStorageService.saveCv(cv);
             user.setCvPath(path);
         }
         if (avatar != null && !avatar.isEmpty()) {
-            String preferredName = username != null ? username : (fullName != null ? fullName : "avatar");
-            String path = fileStorageService.saveAvatar(avatar, preferredName);
+            String path = fileStorageService.saveAvatar(avatar);
             user.setAvatarPath(path);
         }
         User saved = userRepository.save(user);
@@ -97,19 +99,18 @@ public class UserService implements UserDetailsService {
                                    UserPosition position,
                                    MultipartFile cv,
                                    MultipartFile avatar) throws IOException {
+        log.info("UserService.updateUser called id={} cvPresent={} avatarPresent={}", id, cv != null && !cv.isEmpty(), avatar != null && !avatar.isEmpty());
         User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         if (fullName != null) user.setFullName(fullName);
         if (password != null && !password.isBlank()) user.setPassword(passwordEncoder.encode(password));
         if (description != null) user.setDescription(description);
         if (position != null) user.setPosition(position);
         if (cv != null && !cv.isEmpty()) {
-            String preferredName = user.getUsername() != null ? user.getUsername() : (fullName != null ? fullName : "cv");
-            String path = fileStorageService.saveCv(cv, preferredName);
+            String path = fileStorageService.saveCv(cv);
             user.setCvPath(path);
         }
         if (avatar != null && !avatar.isEmpty()) {
-            String preferredName = user.getUsername() != null ? user.getUsername() : (fullName != null ? fullName : "avatar");
-            String path = fileStorageService.saveAvatar(avatar, preferredName);
+            String path = fileStorageService.saveAvatar(avatar);
             user.setAvatarPath(path);
         }
         User saved = userRepository.save(user);
@@ -118,9 +119,22 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void deleteUser(Long id) {
+        log.info("UserService.deleteUser called id={}", id);
         if (!userRepository.existsById(id)) {
             throw new UsernameNotFoundException("User not found");
         }
         userRepository.deleteById(id);
+        log.info("UserService.deleteUser success id={}", id);
+    }
+
+    public Set<User> getUsersByIds(Set<Long> ids) {
+        log.info("UserService.getUsersByIds called count={}", ids != null ? ids.size() : 0);
+        if (ids == null || ids.isEmpty()) return new HashSet<>();
+        return new HashSet<>(userRepository.findAllById(ids));
+    }
+
+    public User getUserByIdOrThrow(Long id) {
+        log.info("UserService.getUserByIdOrThrow called id={}", id);
+        return userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

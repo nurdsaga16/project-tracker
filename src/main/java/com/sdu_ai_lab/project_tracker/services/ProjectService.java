@@ -38,7 +38,7 @@ public class ProjectService {
     }
 
     public ProjectResponse getProjectById(Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException("Project with id " + projectId + " not found"));
+        Project project = projectRepository.findById(projectId).orElseThrow();
         return projectMapper.toDto(project);
     }
 
@@ -54,8 +54,7 @@ public class ProjectService {
         }
 
         Set<User> teamMembers = new HashSet<>(userRepository.findAllById(projectToCreate.getTeamMemberIds()));
-        User author = userRepository.findById(projectToCreate.getAuthorId()).orElseThrow(
-                () -> new EntityNotFoundException("Author with id " + projectToCreate.getAuthorId() + " not found"));
+        User author = userRepository.findById(projectToCreate.getAuthorId()).orElseThrow();
 
         Project project = new Project();
         project.setTitle(projectToCreate.getTitle());
@@ -95,7 +94,7 @@ public class ProjectService {
         }
 
         Set<User> teamMembers = new HashSet<>(userRepository.findAllById(projectToUpdate.getTeamMemberIds()));
-        User author = userRepository.findById(projectToUpdate.getAuthorId()).orElseThrow(() -> new EntityNotFoundException("Author with id " + projectToUpdate.getAuthorId() + " not found"));
+        User author = userRepository.findById(projectToUpdate.getAuthorId()).orElseThrow();
 
         project.setTitle(projectToUpdate.getTitle());
         project.setDescription(projectToUpdate.getDescription());
