@@ -38,7 +38,7 @@ public class ProjectService {
     }
 
     public ProjectResponse getProjectById(Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException("Not found reservation by id = "+projectId));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException("Project with id " + projectId + " not found"));
         return projectMapper.toDto(project);
     }
 
@@ -54,7 +54,8 @@ public class ProjectService {
         }
 
         Set<User> teamMembers = new HashSet<>(userRepository.findAllById(projectToCreate.getTeamMemberIds()));
-        User author = userRepository.findById(projectToCreate.getAuthorId()).orElseThrow();
+        User author = userRepository.findById(projectToCreate.getAuthorId()).orElseThrow(
+                () -> new EntityNotFoundException("Author with id " + projectToCreate.getAuthorId() + " not found"));
 
         Project project = new Project();
         project.setTitle(projectToCreate.getTitle());
@@ -94,7 +95,7 @@ public class ProjectService {
         }
 
         Set<User> teamMembers = new HashSet<>(userRepository.findAllById(projectToUpdate.getTeamMemberIds()));
-        User author = userRepository.findById(projectToUpdate.getAuthorId()).orElseThrow();
+        User author = userRepository.findById(projectToUpdate.getAuthorId()).orElseThrow(() -> new EntityNotFoundException("Author with id " + projectToUpdate.getAuthorId() + " not found"));
 
         project.setTitle(projectToUpdate.getTitle());
         project.setDescription(projectToUpdate.getDescription());

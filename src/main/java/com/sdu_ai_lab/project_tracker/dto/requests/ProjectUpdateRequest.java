@@ -16,6 +16,7 @@ public class ProjectUpdateRequest {
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
+
     private List<Long> imageIds;
     @NotNull
     private Double progress;
