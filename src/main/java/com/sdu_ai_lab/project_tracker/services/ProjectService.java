@@ -64,15 +64,16 @@ public class ProjectService {
         project.setStatus(projectToCreate.getStatus());
         project.setProgress(projectToCreate.getProgress());
         project.setAuthor(author);
-        project.setTags(tags);
-        project.setTeamMembers(teamMembers);
-        if (projectToCreate.getImageIds() != null) {
-            var images = new HashSet<>(imageRepository.findAllById(projectToCreate.getImageIds()));
-            images.forEach(img -> img.setProject(project));
-            project.setImages(images);
-        }
-        
-        return projectMapper.toDto(projectRepository.save(project));
+        project.setVisibility(ProjectVisibility.DRAFT);
+        project.setStatus(ProjectStatus.PLANNED);
+        project.setProgress(0.0);
+        project.setTitle(request.getTitle() != null ? request.getTitle() : "Untitled Project");
+        project.setDescription("");
+        project.setStartDate(LocalDate.now());
+        project.setEndDate(LocalDate.now().plusDays(1));
+
+        Project saved = projectRepository.save(project);
+        return projectMapper.toDto(saved);
     }
     
     public ProjectResponse updateProject(
