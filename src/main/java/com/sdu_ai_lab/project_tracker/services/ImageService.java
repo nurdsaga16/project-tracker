@@ -22,6 +22,7 @@ public class ImageService {
     private final ProjectRepository projectRepository;
 
     public Map<String, Object> uploadImage(MultipartFile file, Long projectId) throws IOException {
+        log.info("ImageService.uploadImage called projectId={} originalFile={}", projectId, file != null ? file.getOriginalFilename() : null);
         if (file == null || file.isEmpty()) {
             throw new IllegalArgumentException("File is required");
         }
