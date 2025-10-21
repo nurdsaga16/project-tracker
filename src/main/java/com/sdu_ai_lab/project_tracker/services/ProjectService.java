@@ -1,22 +1,22 @@
 package com.sdu_ai_lab.project_tracker.services;
 
+import com.sdu_ai_lab.project_tracker.dto.requests.ProjectCreateRequest;
 import com.sdu_ai_lab.project_tracker.dto.requests.ProjectUpdateRequest;
 import com.sdu_ai_lab.project_tracker.dto.responses.ProjectResponse;
 import com.sdu_ai_lab.project_tracker.entities.Project;
 import com.sdu_ai_lab.project_tracker.entities.Tag;
 import com.sdu_ai_lab.project_tracker.entities.User;
+import com.sdu_ai_lab.project_tracker.enums.ProjectStatus;
+import com.sdu_ai_lab.project_tracker.enums.ProjectVisibility;
 import com.sdu_ai_lab.project_tracker.mappers.ProjectMapper;
 import com.sdu_ai_lab.project_tracker.repositories.ImageRepository;
 import com.sdu_ai_lab.project_tracker.repositories.ProjectRepository;
-import com.sdu_ai_lab.project_tracker.repositories.TagRepository;
-import com.sdu_ai_lab.project_tracker.repositories.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,58 +28,46 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectMapper projectMapper;
 
-    private final TagRepository tagRepository;
-    private final UserRepository userRepository;
     private final ImageRepository imageRepository;
+    private final TagService tagService;
+    private final UserService userService;
 
     public List<ProjectResponse> getAllProjects() {
+        log.info("ProjectService.getAllProjects called");
         List<Project> projects = projectRepository.findAll();
         return projects.stream().map(projectMapper::toDto).toList();
     }
 
     public ProjectResponse getProjectById(Long projectId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException("Project with id " + projectId + " not found"));
+        log.info("ProjectService.getProjectById called id={}", projectId);
+        Project project = projectRepository.findById(projectId).orElseThrow();
         return projectMapper.toDto(project);
     }
 
-    public ProjectResponse createProject(ProjectUpdateRequest projectToCreate) {
-        if (!projectToCreate.getStartDate().isBefore(projectToCreate.getEndDate())) {
-            throw new IllegalArgumentException("Project start date must be 1 day before end date");
-        }
-        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(projectToCreate.getTagIds()));
-        for (String name : projectToCreate.getNewTags()) {
-            Tag tag = new Tag();
-            tag.setName(name);
-            tags.add(tagRepository.save(tag));
-        }
-
-        Set<User> teamMembers = new HashSet<>(userRepository.findAllById(projectToCreate.getTeamMemberIds()));
-        User author = userRepository.findById(projectToCreate.getAuthorId()).orElseThrow(
-                () -> new EntityNotFoundException("Author with id " + projectToCreate.getAuthorId() + " not found"));
+    public ProjectResponse createProject(ProjectCreateRequest request) {
+        log.info("ProjectService.createProject called authorId={}", request.getAuthorId());
+        User author = userService.getUserByIdOrThrow(request.getAuthorId());
 
         Project project = new Project();
-        project.setTitle(projectToCreate.getTitle());
-        project.setDescription(projectToCreate.getDescription());
-        project.setStartDate(projectToCreate.getStartDate());
-        project.setEndDate(projectToCreate.getEndDate());
-        project.setStatus(projectToCreate.getStatus());
-        project.setProgress(projectToCreate.getProgress());
         project.setAuthor(author);
-        project.setTags(tags);
-        project.setTeamMembers(teamMembers);
-        if (projectToCreate.getImageIds() != null) {
-            var images = new HashSet<>(imageRepository.findAllById(projectToCreate.getImageIds()));
-            images.forEach(img -> img.setProject(project));
-            project.setImages(images);
-        }
-        
-        return projectMapper.toDto(projectRepository.save(project));
+        project.setVisibility(ProjectVisibility.DRAFT);
+        project.setStatus(ProjectStatus.PLANNED);
+        project.setProgress(0.0);
+        project.setTitle(request.getTitle() != null ? request.getTitle() : "Untitled Project");
+        project.setDescription("");
+        project.setStartDate(LocalDate.now());
+        project.setEndDate(LocalDate.now().plusDays(1));
+
+        Project saved = projectRepository.save(project);
+        return projectMapper.toDto(saved);
     }
+
     
     public ProjectResponse updateProject(
             Long projectId,
             ProjectUpdateRequest projectToUpdate
     ) {
+        log.info("ProjectService.updateProject called id={} title={} authorId={}", projectId, projectToUpdate.getTitle(), projectToUpdate.getAuthorId());
         var project = projectRepository.findById(projectId).orElseThrow();
         if (!project.getAuthor().getId().equals(projectToUpdate.getAuthorId())) {
             throw new IllegalArgumentException("Project author cannot be changed");
@@ -87,21 +75,16 @@ public class ProjectService {
         if (!project.getStartDate().isBefore(project.getEndDate())) {
             throw new IllegalArgumentException("Project start date must be 1 day before end date");
         }
-        Set<Tag> tags = new HashSet<>(tagRepository.findAllById(projectToUpdate.getTagIds()));
-        for (String name : projectToUpdate.getNewTags()) {
-            Tag tag = new Tag();
-            tag.setName(name);
-            tags.add(tagRepository.save(tag));
-        }
-
-        Set<User> teamMembers = new HashSet<>(userRepository.findAllById(projectToUpdate.getTeamMemberIds()));
-        User author = userRepository.findById(projectToUpdate.getAuthorId()).orElseThrow(() -> new EntityNotFoundException("Author with id " + projectToUpdate.getAuthorId() + " not found"));
+        Set<Tag> tags = tagService.buildTags(projectToUpdate.getTagIds() != null ? new java.util.HashSet<>(projectToUpdate.getTagIds()) : null, projectToUpdate.getNewTags());
+        Set<User> teamMembers = userService.getUsersByIds(projectToUpdate.getTeamMemberIds() != null ? new java.util.HashSet<>(projectToUpdate.getTeamMemberIds()) : null);
+        User author = userService.getUserByIdOrThrow(projectToUpdate.getAuthorId());
 
         project.setTitle(projectToUpdate.getTitle());
         project.setDescription(projectToUpdate.getDescription());
         project.setStartDate(projectToUpdate.getStartDate());
         project.setEndDate(projectToUpdate.getEndDate());
         project.setStatus(projectToUpdate.getStatus());
+        project.setVisibility(projectToUpdate.getVisibility());
         project.setProgress(projectToUpdate.getProgress());
         project.setAuthor(author);
         project.setTags(tags);
@@ -118,8 +101,9 @@ public class ProjectService {
     public void deleteProject(
             Long projectId
     ) {
+        log.info("ProjectService.deleteProject called id={}", projectId);
         if (!projectRepository.existsById(projectId)) {
-            throw new EntityNotFoundException("Project with id " + projectId + " not found");
+            throw new jakarta.persistence.EntityNotFoundException("Project with id " + projectId + " not found");
         }
         projectRepository.deleteById(projectId);
         log.info("Project with id {} deleted", projectId);

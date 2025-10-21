@@ -1,5 +1,6 @@
 package com.sdu_ai_lab.project_tracker.controllers;
 
+import com.sdu_ai_lab.project_tracker.dto.requests.ProjectCreateRequest;
 import com.sdu_ai_lab.project_tracker.dto.requests.ProjectUpdateRequest;
 import com.sdu_ai_lab.project_tracker.dto.responses.ProjectResponse;
 import com.sdu_ai_lab.project_tracker.services.ProjectService;
@@ -36,12 +37,13 @@ public class ProjectController {
 
     @PostMapping()
     public ResponseEntity<ProjectResponse> createProject(
-            @RequestBody @Valid ProjectUpdateRequest projectToCreate
+            @RequestBody @Valid ProjectCreateRequest request
     ) {
-        log.info("Creating project...");
-        ProjectResponse savedProject = projectService.createProject(projectToCreate);
-        return ResponseEntity.ok(savedProject);
+        log.info("Creating DRAFT project for author_id={}", request.getAuthorId());
+        ProjectResponse draft = projectService.createProject(request);
+        return ResponseEntity.ok(draft);
     }
+
 
     @PutMapping("/{id}")
     public ResponseEntity<ProjectResponse> updateProject(

@@ -5,5 +5,6 @@ public enum ProjectStatus {
     SOLD,
     NEED_TO_START,
     MVP,
-    COMPLETED
+    COMPLETED,
+    PLANNED
 }
