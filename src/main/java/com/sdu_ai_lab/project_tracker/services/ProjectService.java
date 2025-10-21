@@ -1,10 +1,13 @@
 package com.sdu_ai_lab.project_tracker.services;
 
+import com.sdu_ai_lab.project_tracker.dto.requests.ProjectCreateRequest;
 import com.sdu_ai_lab.project_tracker.dto.requests.ProjectUpdateRequest;
 import com.sdu_ai_lab.project_tracker.dto.responses.ProjectResponse;
 import com.sdu_ai_lab.project_tracker.entities.Project;
 import com.sdu_ai_lab.project_tracker.entities.Tag;
 import com.sdu_ai_lab.project_tracker.entities.User;
+import com.sdu_ai_lab.project_tracker.enums.ProjectStatus;
+import com.sdu_ai_lab.project_tracker.enums.ProjectVisibility;
 import com.sdu_ai_lab.project_tracker.mappers.ProjectMapper;
 import com.sdu_ai_lab.project_tracker.repositories.ImageRepository;
 import com.sdu_ai_lab.project_tracker.repositories.ProjectRepository;
@@ -13,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,33 +44,24 @@ public class ProjectService {
         return projectMapper.toDto(project);
     }
 
-    public ProjectResponse createProject(ProjectUpdateRequest projectToCreate) {
-        log.info("ProjectService.createProject called title={} authorId={}", projectToCreate.getTitle(), projectToCreate.getAuthorId());
-        if (!projectToCreate.getStartDate().isBefore(projectToCreate.getEndDate())) {
-            throw new IllegalArgumentException("Project start date must be 1 day before end date");
-        }
-        Set<Tag> tags = tagService.buildTags(projectToCreate.getTagIds() != null ? new java.util.HashSet<>(projectToCreate.getTagIds()) : null, projectToCreate.getNewTags());
-        Set<User> teamMembers = userService.getUsersByIds(projectToCreate.getTeamMemberIds() != null ? new java.util.HashSet<>(projectToCreate.getTeamMemberIds()) : null);
-        User author = userService.getUserByIdOrThrow(projectToCreate.getAuthorId());
+    public ProjectResponse createProject(ProjectCreateRequest request) {
+        log.info("ProjectService.createProject called authorId={}", request.getAuthorId());
+        User author = userService.getUserByIdOrThrow(request.getAuthorId());
 
         Project project = new Project();
-        project.setTitle(projectToCreate.getTitle());
-        project.setDescription(projectToCreate.getDescription());
-        project.setStartDate(projectToCreate.getStartDate());
-        project.setEndDate(projectToCreate.getEndDate());
-        project.setStatus(projectToCreate.getStatus());
-        project.setProgress(projectToCreate.getProgress());
         project.setAuthor(author);
-        project.setTags(tags);
-        project.setTeamMembers(teamMembers);
-        if (projectToCreate.getImageIds() != null) {
-            var images = new HashSet<>(imageRepository.findAllById(projectToCreate.getImageIds()));
-            images.forEach(img -> img.setProject(project));
-            project.setImages(images);
-        }
-        
-        return projectMapper.toDto(projectRepository.save(project));
+        project.setVisibility(ProjectVisibility.DRAFT);
+        project.setStatus(ProjectStatus.PLANNED);
+        project.setProgress(0.0);
+        project.setTitle(request.getTitle() != null ? request.getTitle() : "Untitled Project");
+        project.setDescription("");
+        project.setStartDate(LocalDate.now());
+        project.setEndDate(LocalDate.now().plusDays(1));
+
+        Project saved = projectRepository.save(project);
+        return projectMapper.toDto(saved);
     }
+
     
     public ProjectResponse updateProject(
             Long projectId,
