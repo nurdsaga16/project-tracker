@@ -58,9 +58,6 @@ public class ProjectService {
         project.setStartDate(LocalDate.now());
         project.setEndDate(LocalDate.now().plusDays(1));
 
-        log.info("Привет");
-        log.info("Пока");
-
         Project saved = projectRepository.save(project);
         return projectMapper.toDto(saved);
     }
