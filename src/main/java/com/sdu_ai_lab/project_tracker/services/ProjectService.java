@@ -109,16 +109,10 @@ public class ProjectService {
         log.info("Project with id {} deleted", projectId);
     }
 
-    public List<ProjectResponse> filterByStatus(ProjectStatus status, List<Integer> tags) {
+    public List<ProjectResponse> filterProjects(ProjectStatus status, List<Integer> tags, String text) {
         log.info("ProjectService.filterByStatus called");
-        List<Project> filteredProject = List.of();
-        if(status != null && tags != null) {
-            filteredProject = projectRepository.findProjectsByTagsAndStatus(tags, status);
-        }else if(status != null) {
-            filteredProject = projectRepository.findProjectsByStatus(status);
-        }else if(tags != null) {
-            filteredProject = projectRepository.findProjectsByTags(tags);
-        }
+        List<Project> filteredProject = projectRepository.findProjectsByTagsAndStatusAndTitleContaining(tags, status, text);
         return filteredProject.stream().map(projectMapper::toDto).toList();
     }
+
 }
