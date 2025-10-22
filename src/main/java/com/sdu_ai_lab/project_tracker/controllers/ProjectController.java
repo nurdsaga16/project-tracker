@@ -4,6 +4,7 @@ import com.sdu_ai_lab.project_tracker.dto.requests.ProjectCreateRequest;
 import com.sdu_ai_lab.project_tracker.dto.requests.ProjectUpdateRequest;
 import com.sdu_ai_lab.project_tracker.dto.responses.ProjectResponse;
 import com.sdu_ai_lab.project_tracker.enums.ProjectStatus;
+import com.sdu_ai_lab.project_tracker.enums.ProjectVisibility;
 import com.sdu_ai_lab.project_tracker.services.ProjectService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -69,10 +70,11 @@ public class ProjectController {
     public ResponseEntity<List<ProjectResponse>> getProjectsByStatus(
             @RequestParam(required = false) ProjectStatus status,
             @RequestParam(required = false) List<Integer> tags,
-            @RequestParam(required = false) String text
+            @RequestParam(required = false) String text,
+            @RequestParam(required = false) ProjectVisibility visibility
     ){
         log.info("Getting projects by status {}...", status);
-        List<ProjectResponse> filteredProjects = projectService.filterProjects(status, tags, text);
+        List<ProjectResponse> filteredProjects = projectService.filterProjects(status, tags, text, visibility);
         return ResponseEntity.ok(filteredProjects);
     }
 
