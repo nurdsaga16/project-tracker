@@ -33,10 +33,10 @@ public class Project {
     @Column(name = "description", nullable = false)
     private String description;
 
-    @Column(name = "startDate", nullable = false)
+    @Column(name = "startDate", nullable = true)
     private LocalDate startDate;
 
-    @Column(name = "endDate", nullable = false)
+    @Column(name = "endDate", nullable = true)
     private LocalDate endDate;
 
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = false)
