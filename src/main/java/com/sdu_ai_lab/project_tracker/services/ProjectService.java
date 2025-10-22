@@ -73,8 +73,8 @@ public class ProjectService {
         if (!project.getStartDate().isBefore(project.getEndDate())) {
             throw new IllegalArgumentException("Project start date must be 1 day before end date");
         }
-        Set<Tag> tags = tagService.buildTags(projectToUpdate.getTagIds() != null ? new java.util.HashSet<>(projectToUpdate.getTagIds()) : null, projectToUpdate.getNewTags());
-        Set<User> teamMembers = userService.getUsersByIds(projectToUpdate.getTeamMemberIds() != null ? new java.util.HashSet<>(projectToUpdate.getTeamMemberIds()) : null);
+        Set<Tag> tags = tagService.buildTags(projectToUpdate.getTagIds() != null ? new HashSet<>(projectToUpdate.getTagIds()) : null, projectToUpdate.getNewTags());
+        Set<User> teamMembers = userService.getUsersByIds(projectToUpdate.getTeamMemberIds() != null ? new HashSet<>(projectToUpdate.getTeamMemberIds()) : null);
         User author = userService.getUserByIdOrThrow(projectToUpdate.getAuthorId());
 
         project.setTitle(projectToUpdate.getTitle());
@@ -101,9 +101,17 @@ public class ProjectService {
     ) {
         log.info("ProjectService.deleteProject called id={}", projectId);
         if (!projectRepository.existsById(projectId)) {
-            throw new jakarta.persistence.EntityNotFoundException("Project with id " + projectId + " not found");
+            throw new EntityNotFoundException("Project with id " + projectId + " not found");
         }
         projectRepository.deleteById(projectId);
         log.info("Project with id {} deleted", projectId);
     }
+
+    public List<ProjectResponse> filterProjects(ProjectStatus status, List<Integer> tags, String text, ProjectVisibility visibility) {
+        log.info("ProjectService.filterByStatus called");
+        List<Project> filteredProject = projectRepository.findProjectsByTagsAndStatusAndTitleContaining(tags, status, text, visibility);
+        return filteredProject.stream().map(projectMapper::toDto).toList();
+    }
+
+
 }
