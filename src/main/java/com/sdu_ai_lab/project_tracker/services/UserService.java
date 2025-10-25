@@ -1,6 +1,5 @@
 package com.sdu_ai_lab.project_tracker.services;
 
-import com.sdu_ai_lab.project_tracker.dto.requests.UserUpdateRequest;
 import com.sdu_ai_lab.project_tracker.dto.responses.UserResponse;
 import com.sdu_ai_lab.project_tracker.entities.User;
 import com.sdu_ai_lab.project_tracker.enums.UserPosition;
@@ -9,8 +8,6 @@ import com.sdu_ai_lab.project_tracker.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.repository.query.Procedure;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -95,8 +92,13 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserResponse updateUser(Long id, String fullName, String password, String description, UserPosition position, MultipartFile cv, MultipartFile avatar) throws IOException {
-        log.info("UserService.updateUser called id={}", id);
+    public UserResponse updateUser(Long id, String fullName,
+                                   String password,
+                                   String description,
+                                   UserPosition position,
+                                   MultipartFile cv,
+                                   MultipartFile avatar) throws IOException {
+        log.info("UserService.updateUser called id={}, description={}", id,  description);
         User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         if(fullName != null)

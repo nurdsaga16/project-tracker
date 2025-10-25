@@ -1,14 +1,11 @@
 package com.sdu_ai_lab.project_tracker.controllers;
 
-import com.sdu_ai_lab.project_tracker.dto.requests.UserUpdateRequest;
 import com.sdu_ai_lab.project_tracker.dto.responses.UserResponse;
 import com.sdu_ai_lab.project_tracker.enums.UserPosition;
 import com.sdu_ai_lab.project_tracker.services.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -61,7 +58,7 @@ public class UserController {
             @RequestParam(value = "cv", required = false) MultipartFile cv,
             @RequestParam(value = "avatar", required = false) MultipartFile avatar
     ) throws IOException {
-        UserResponse updated = userService.updateUser(id, fullName, description, password, position, cv, avatar);
+        UserResponse updated = userService.updateUser(id, fullName, password, description, position, cv, avatar);
         return ResponseEntity.ok(updated);
     }
 
