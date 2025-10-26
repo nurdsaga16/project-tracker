@@ -49,7 +49,8 @@ public class WebSecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(a ->
-                        a.requestMatchers("/api/v1/auth/**", "/images/**", "/api/v1/**").permitAll()
+                        a.requestMatchers("/api/v1/auth/**", "/images/**", "/api/v1/**", "/swagger-ui/**", "/v3/api-docs/**")
+                                .permitAll()
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                                 .anyRequest().authenticated());
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);

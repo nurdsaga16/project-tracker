@@ -92,19 +92,22 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserResponse updateUser(Long id,
-                                   String fullName,
+    public UserResponse updateUser(Long id, String fullName,
                                    String password,
                                    String description,
                                    UserPosition position,
                                    MultipartFile cv,
                                    MultipartFile avatar) throws IOException {
-        log.info("UserService.updateUser called id={} cvPresent={} avatarPresent={}", id, cv != null && !cv.isEmpty(), avatar != null && !avatar.isEmpty());
+        log.info("UserService.updateUser called id={}, description={}", id,  description);
         User user = userRepository.findById(id).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        if (fullName != null) user.setFullName(fullName);
-        if (password != null && !password.isBlank()) user.setPassword(passwordEncoder.encode(password));
-        if (description != null) user.setDescription(description);
-        if (position != null) user.setPosition(position);
+
+        if(fullName != null)
+            user.setFullName(fullName);
+        if(password != null)
+            user.setPassword(passwordEncoder.encode(password));
+        user.setDescription(description);
+        if(position != null)
+            user.setPosition(position);
         if (cv != null && !cv.isEmpty()) {
             String path = fileStorageService.saveCv(cv);
             user.setCvPath(path);

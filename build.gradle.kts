@@ -43,6 +43,8 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.12.7")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.7")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
+
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 }
 
 tasks.withType<Test> {
