@@ -11,6 +11,7 @@ import com.sdu_ai_lab.project_tracker.enums.ProjectVisibility;
 import com.sdu_ai_lab.project_tracker.mappers.ProjectMapper;
 import com.sdu_ai_lab.project_tracker.repositories.ImageRepository;
 import com.sdu_ai_lab.project_tracker.repositories.ProjectRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -49,7 +49,7 @@ public class WebSecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(a ->
-                        a.requestMatchers("/api/v1/auth/**", "/images/**", "/api/v1/**", "/swagger-ui/**", "/v3/api-docs/**")
+                        a.requestMatchers("/api/v1/auth/**", "/images/**", "/avatars/**", "/cv/**","/api/v1/**", "/swagger-ui/**", "/v3/api-docs/**")
                                 .permitAll()
                                 .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                                 .anyRequest().authenticated());
