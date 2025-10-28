@@ -29,8 +29,8 @@ public class TokenBlacklist {
         return true;
     }
 
-    // periodic cleanup every 5 minutes
-    @Scheduled(fixedDelay = 300_000)
+    // periodic cleanup every 50 minutes
+    @Scheduled(fixedDelay = 300000000)
     public void cleanupExpired() {
         long now = Instant.now().toEpochMilli();
         revoked.entrySet().removeIf(e -> e.getValue() < now);
