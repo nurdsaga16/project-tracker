@@ -53,7 +53,7 @@ public class UserController {
             @PathVariable Long id,
             @RequestParam(required = false) String fullName,
             @RequestParam(required = false) String password,
-            @RequestParam(required = false) String description,
+            @RequestParam(value = "description", required = false) String description,
             @RequestParam(required = false) UserPosition position,
             @RequestParam(value = "cv", required = false) MultipartFile cv,
             @RequestParam(value = "avatar", required = false) MultipartFile avatar
