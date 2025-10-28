@@ -7,6 +7,7 @@ public class UserResponse {
     private Long id;
     private String fullName;
     private String username;
+    private String email;
     private String description;
     private String avatarPath;
     private String cvPath;

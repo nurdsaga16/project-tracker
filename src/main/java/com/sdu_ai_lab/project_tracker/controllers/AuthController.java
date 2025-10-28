@@ -51,6 +51,7 @@ public class AuthController {
             throw new IllegalArgumentException("Username is already taken!");
         }
         final User newUser = new User();
+        newUser.setEmail(user.getEmail());
         newUser.setUsername(user.getUsername());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(newUser);
