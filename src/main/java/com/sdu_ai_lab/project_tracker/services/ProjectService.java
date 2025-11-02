@@ -55,8 +55,8 @@ public class ProjectService {
         project.setProgress(0.0);
         project.setTitle(request.getTitle() != null ? request.getTitle() : "Untitled Project");
         project.setDescription("");
-        project.setStartDate(LocalDate.now());
-        project.setEndDate(LocalDate.now().plusDays(1));
+        project.setStartDate(null);
+        project.setEndDate(null);
 
         Project saved = projectRepository.save(project);
         return projectMapper.toDto(saved);
@@ -68,10 +68,11 @@ public class ProjectService {
     ) {
         log.info("ProjectService.updateProject called id={} title={} authorId={}", projectId, projectToUpdate.getTitle(), projectToUpdate.getAuthorId());
         var project = projectRepository.findById(projectId).orElseThrow();
+        log.info("{} {}",project.getStartDate(), project.getEndDate());
         if (!project.getAuthor().getId().equals(projectToUpdate.getAuthorId())) {
             throw new IllegalArgumentException("Project author cannot be changed");
         }
-        if (!project.getStartDate().isBefore(project.getEndDate())) {
+        if (project.getStartDate() != null && project.getEndDate()!=null && !project.getStartDate().isBefore(project.getEndDate())) {
             throw new IllegalArgumentException("Project start date must be 1 day before end date");
         }
         Set<Tag> tags = tagService.buildTags(projectToUpdate.getTagIds() != null ? new HashSet<>(projectToUpdate.getTagIds()) : null, projectToUpdate.getNewTags());

@@ -11,22 +11,21 @@ import java.util.List;
 
 @Data
 public class ProjectUpdateRequest {
-    @NotBlank
     private String title;
+
+    @NotBlank
     private String description;
     private LocalDate startDate;
     private LocalDate endDate;
 
     private List<Long> imageIds;
-    @NotNull
     private Double progress;
     @NotNull
     private ProjectStatus status;
     @NotNull
     private ProjectVisibility visibility;
-    @NotNull
     private Long authorId;
-    private List<Long> tagIds;           // id существующих тегов
-    private List<String> newTags;        // имена новых тегов для создания
-    private List<Long> teamMemberIds;     // id участников
+    private List<Long> tagIds;
+    private List<String> newTags;
+    private List<Long> teamMemberIds;
 }
