@@ -20,7 +20,6 @@ public class TagController {
 
     @GetMapping()
     public ResponseEntity<List<TagResponse>> getAllTags() {
-        log.info("Getting all tags...");
         List<TagResponse> tags = tagService.getAllTags();
         return ResponseEntity.ok(tags);
     }

@@ -23,7 +23,6 @@ public class ProjectController {
 
     @GetMapping()
     public ResponseEntity<List<ProjectResponse>> getAllProjects() {
-        log.info("Getting all projects...");
         List<ProjectResponse> projects = projectService.getAllProjects();
         return ResponseEntity.ok(projects);
     }
@@ -32,7 +31,6 @@ public class ProjectController {
     public ResponseEntity<ProjectResponse> getProjectById(
             @PathVariable("id") Long projectId
     ) {
-        log.info("Getting project with id {}...", projectId);
         ProjectResponse project = projectService.getProjectById(projectId);
         return ResponseEntity.ok(project);
     }
@@ -41,7 +39,6 @@ public class ProjectController {
     public ResponseEntity<ProjectResponse> createProject(
             @RequestBody @Valid ProjectCreateRequest request
     ) {
-        log.info("Creating DRAFT project for author_id={}", request.getAuthorId());
         ProjectResponse draft = projectService.createProject(request);
         return ResponseEntity.ok(draft);
     }
@@ -52,7 +49,6 @@ public class ProjectController {
             @PathVariable("id") Long projectId,
             @RequestBody @Valid ProjectUpdateRequest projectToUpdate
     ) {
-        log.info("Updating project...");
         ProjectResponse updatedProject = projectService.updateProject(projectId, projectToUpdate);
         return ResponseEntity.ok(updatedProject);
     }
@@ -61,7 +57,6 @@ public class ProjectController {
     public ResponseEntity<Void> deleteProject(
             @PathVariable("id") Long projectId
     ) {
-        log.info("Deleting project...");
         projectService.deleteProject(projectId);
         return ResponseEntity.ok().build();
     }
@@ -73,7 +68,6 @@ public class ProjectController {
             @RequestParam(required = false) String text,
             @RequestParam(required = false) ProjectVisibility visibility
     ){
-        log.info("Getting projects by status {}...", status);
         List<ProjectResponse> filteredProjects = projectService.filterProjects(status, tags, text, visibility);
         return ResponseEntity.ok(filteredProjects);
     }
