@@ -33,23 +33,23 @@ public class UserService implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("UserService.loadUserByUsername called username={}", username);
-        User user = userRepository.findByUsername(username)
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        log.info("UserService.loadUserByUsername called email={}", email);
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
         List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),
+                user.getEmail(),
                 user.getPassword(),
                 authorities
         );
     }
 
-    public UserResponse getUserByUsername(String username) {
-        log.info("UserService.getUserByUsername called username={}", username);
-        User user = userRepository.findByUsername(username)
+    public UserResponse getUserByEmail(String email) {
+        log.info("UserService.getUserByEmail called email={}", email);
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return userMapper.toDto(user);
     }
@@ -63,19 +63,20 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public UserResponse createUser(String fullName,
-                                   String username,
+                                   String email,
                                    String password,
                                    String description,
                                    UserPosition position,
                                    MultipartFile cv,
                                    MultipartFile avatar) throws IOException {
-        log.info("UserService.createUser called username={} position={} cvPresent={} avatarPresent={}", username, position, cv != null && !cv.isEmpty(), avatar != null && !avatar.isEmpty());
-        if (userRepository.existsByUsername(username)) {
+        log.info("UserService.createUser called email={} position={} cvPresent={} avatarPresent={}", email, position, cv != null && !cv.isEmpty(), avatar != null && !avatar.isEmpty());
+        if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("Username is already taken");
         }
+
         User user = new User();
         user.setFullName(fullName);
-        user.setUsername(username);
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(password));
         user.setDescription(description);
         user.setPosition(position);
@@ -92,7 +93,9 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public UserResponse updateUser(Long id, String fullName,
+    public UserResponse updateUser(Long id,
+                                   String fullName,
+                                   String email,
                                    String password,
                                    String description,
                                    UserPosition position,
@@ -103,6 +106,8 @@ public class UserService implements UserDetailsService {
 
         if(fullName != null)
             user.setFullName(fullName);
+        if(email != null)
+            user.setEmail(email);
         if(password != null)
             user.setPassword(passwordEncoder.encode(password));
         user.setDescription(description);

@@ -9,27 +9,24 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
 
-@Table(name = "users")
+@Entity
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Entity
+@Table(name = "users")
 public class User implements UserDetails {
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "full_name", nullable = true)
+    @Column(name = "full_name", nullable = false)
     private String fullName;
 
-    @Column(name = "email", nullable = false)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
-
-    @Column(name = "username", unique = true, nullable = false)
-    private String username;
 
     @Column(name = "password", nullable = false)
     private String password;
@@ -44,7 +41,7 @@ public class User implements UserDetails {
     private String cvPath;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "position", nullable = true)
+    @Column(name = "position", nullable = false)
     private UserPosition position;
 
     @OneToMany(mappedBy = "author", fetch = FetchType.LAZY)
@@ -56,6 +53,11 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
     }
 
     @Override

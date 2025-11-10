@@ -52,7 +52,6 @@ public class ProjectService {
         project.setAuthor(author);
         project.setVisibility(ProjectVisibility.DRAFT);
         project.setStatus(ProjectStatus.PLANNED);
-        project.setProgress(0.0);
         project.setTitle(request.getTitle() != null ? request.getTitle() : "Untitled Project");
         project.setDescription("");
         project.setStartDate(null);
@@ -85,7 +84,6 @@ public class ProjectService {
         project.setEndDate(projectToUpdate.getEndDate());
         project.setStatus(projectToUpdate.getStatus());
         project.setVisibility(projectToUpdate.getVisibility());
-        project.setProgress(projectToUpdate.getProgress());
         project.setAuthor(author);
         project.setTags(tags);
         project.setTeamMembers(teamMembers);
@@ -110,10 +108,21 @@ public class ProjectService {
     }
 
     public List<ProjectResponse> filterProjects(ProjectStatus status, List<Integer> tags, String text, ProjectVisibility visibility) {
-        log.info("ProjectService.filterByStatus called");
-        List<Project> filteredProject = projectRepository.findProjectsByTagsAndStatusAndTitleContaining(tags, status, text, visibility);
-        return filteredProject.stream().map(projectMapper::toDto).toList();
+        log.info("ProjectService.filterProjects called");
+        if (tags == null || tags.isEmpty()) {
+            tags = null;
+        }
+        List<Project> filteredProjects = projectRepository.findProjectsByTagsAndStatusAndTitleContaining(
+                tags,
+                status,
+                text,
+                visibility
+        );
+        return filteredProjects.stream()
+                .map(projectMapper::toDto)
+                .toList();
     }
+
 
 
 }

@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,21 +29,22 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public UserResponse getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
-        return userService.getUserByUsername(userDetails.getUsername());
+    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal JwtAuthenticationToken auth) {
+        String email = auth.getName();
+        return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<UserResponse> createUser(
             @RequestParam String fullName,
-            @RequestParam String username,
+            @RequestParam String email,
             @RequestParam String password,
             @RequestParam(required = false) String description,
             @RequestParam UserPosition position,
             @RequestParam(value = "cv", required = false) MultipartFile cv,
             @RequestParam(value = "avatar", required = false) MultipartFile avatar
     ) throws IOException {
-        UserResponse created = userService.createUser(fullName, username, password, description, position, cv, avatar);
+        UserResponse created = userService.createUser(fullName, email, password, description, position, cv, avatar);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -51,13 +52,14 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(
             @PathVariable Long id,
             @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String email,
             @RequestParam(required = false) String password,
             @RequestParam(value = "description", required = false) String description,
             @RequestParam(required = false) UserPosition position,
             @RequestParam(value = "cv", required = false) MultipartFile cv,
             @RequestParam(value = "avatar", required = false) MultipartFile avatar
     ) throws IOException {
-        UserResponse updated = userService.updateUser(id, fullName, password, description, position, cv, avatar);
+        UserResponse updated = userService.updateUser(id, fullName, email, password, description, position, cv, avatar);
         return ResponseEntity.ok(updated);
     }
 

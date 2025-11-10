@@ -42,9 +42,6 @@ public class Project {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = false)
     private Set<Image> images = new HashSet<>();
 
-    @Column(name = "progress", nullable = false)
-    private Double progress;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ProjectStatus status;

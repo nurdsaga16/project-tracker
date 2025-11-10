@@ -43,8 +43,9 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt-impl:0.12.7")
     implementation("io.jsonwebtoken:jjwt-jackson:0.12.7")
     implementation("org.springframework.boot:spring-boot-configuration-processor")
-
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+    implementation("io.swagger.core.v3:swagger-annotations:2.2.38")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 }
 
 tasks.withType<Test> {
