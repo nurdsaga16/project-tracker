@@ -13,7 +13,7 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/v1/images")
+@RequestMapping("${api.version}/images")
 public class ImageController {
     private final ImageService imageService;
 

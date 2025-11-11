@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,7 +18,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@RequestMapping("/api/v1/users")
+@RequestMapping("${api.version}/users")
 public class UserController {
     private final UserService userService;
 
@@ -29,8 +29,9 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal JwtAuthenticationToken auth) {
-        String email = auth.getName();
+    public ResponseEntity<UserResponse> getCurrentUser() {
+        var token = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        var email = (String) token.getToken().getClaim("email");
         return ResponseEntity.ok(userService.getUserByEmail(email));
     }
 
