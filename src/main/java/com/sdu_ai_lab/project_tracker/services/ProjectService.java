@@ -52,7 +52,7 @@ public class ProjectService {
         project.setAuthor(author);
         project.setVisibility(ProjectVisibility.DRAFT);
         project.setStatus(ProjectStatus.PLANNED);
-        project.setTitle(request.getTitle() != null ? request.getTitle() : "Untitled Project");
+        project.setTitle(request.getTitle());
         project.setDescription("");
         project.setStartDate(null);
         project.setEndDate(null);

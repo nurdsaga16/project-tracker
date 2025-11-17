@@ -18,9 +18,7 @@ public class ProjectUpdateRequest {
     private LocalDate startDate;
     private LocalDate endDate;
     private List<Long> imageIds;
-    @NotNull
     private ProjectStatus status;
-    @NotNull
     private ProjectVisibility visibility;
     private Long authorId;
     private List<Long> tagIds;
